@@ -15,7 +15,10 @@ running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            
             exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            cheesboard.btn_down(event.button, event.pos)
+        if event.type == pygame.MOUSEBUTTONUP:
+            cheesboard.btn_up(event.button, event.pos)
 
 pygame.quit()

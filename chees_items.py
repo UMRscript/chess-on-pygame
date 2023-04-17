@@ -15,6 +15,9 @@ class Cheesboard:
         self.__pieces_types = PIECES_TYPES
         self.__all_cells = pygame.sprite.Group()
         self.__all_pieces = pygame.sprite.Group()
+        self.__all_areas = pygame.sprite.Group()
+        self.__pressed_cell = None
+        self.__picked_piece = None
         self.__prepare_screen()
         self.__draw_playboard()
         self.__draw_all_pieces()
@@ -130,6 +133,67 @@ class Cheesboard:
     def __to_field_name(self, table_coord: tuple):
         return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])
 
+    def __get_piece(self, position: tuple):
+        for piece in self.__all_pieces:
+            if piece.rect.collidepoint(position):
+                return piece
+        return None
+
+    def __get_cell(self, position: tuple):
+        for cell in self.__all_cells:
+            if cell.rect.collidepoint(position):
+                return cell
+        return None
+
+    def btn_down(self, button_type: int, position: tuple):
+        self.__pressed_cell = self.__get_cell(position)
+
+
+    def btn_up(self, button_type: int, position: tuple):
+        released_cell = self.__get_cell(position)
+        if (released_cell is not None) and (released_cell == self.__pressed_cell):
+            if button_type == 3:
+                self.__mark_cell(released_cell)
+            if button_type == 1:
+                self.__pick_cell(released_cell)
+        self.__grand_update()
+        
+
+    def __pick_cell(self, cell):
+        self._unmark_all_cells()
+        if self.__picked_piece is None:
+            for piece in self.__all_pieces:
+                if piece.field_name == cell.field_name:
+                    pick = Area(cell, False)
+                    self.__all_areas.add(pick)
+                    self.__picked_piece = piece
+                    break
+        else:
+            self.__picked_piece.rect = cell.rect
+            self.__picked_piece.field_name = cell.field_name
+            self.__picked_piece = None
+
+    def _unmark_all_cells(self):
+        self.__all_areas.empty()
+        for cell in self.__all_cells:
+            cell.mark = False
+
+    def __mark_cell(self, cell):
+        if not cell.mark:
+            mark = Area(cell)
+            self.__all_areas.add(mark)
+        else:
+            for area in self.__all_areas:
+                if area.field_name == cell.field_name:
+                    area.kill()
+                    break
+        cell.mark ^= True
+
+    def __grand_update(self):
+        self.__all_cells.draw(self.__screen)
+        self.__all_areas.draw(self.__screen)
+        self.__all_pieces.draw(self.__screen)
+        pygame.display.update()
 
 
 class Cell(pygame.sprite.Sprite):
@@ -141,3 +205,20 @@ class Cell(pygame.sprite.Sprite):
         self.image = pygame.image.load(IMG_PATH + COLORS[color_index])
         self.image = pygame.transform.scale(self.image, (size, size))
         self.rect = pygame.Rect(x* size, y* size, size, size) #pygame.draw.Rect()
+        self.mark = False
+
+class Area(pygame.sprite.Sprite):
+    def __init__(self, cell: Cell, type_of_area: bool = True):
+        super().__init__()
+        coords = (cell.rect.x, cell.rect.y)
+        area_size = (cell.rect.width, cell.rect.height)
+        if type_of_area:
+            # mark cell
+            picture = pygame.image.load(IMG_PATH + 'mark.png')
+            self.image = pygame.transform.scale(picture, area_size)
+        else:
+            # pick cell with piece
+            self.image = pygame.Surface(area_size)
+            self.image.fill(ACTIVE_CELL_COLOR)
+        self.rect = pygame.Rect(coords, area_size)
+        self.field_name = cell.field_name

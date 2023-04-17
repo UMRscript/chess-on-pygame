@@ -12,6 +12,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BACKGROUND = (150,90,30)
 COLORS = ['black_cell.jpg', 'white_cell.jpg']
+ACTIVE_CELL_COLOR = (174, 111, 237, 64)
 
 #Загрузка изоображений
 IMG_PATH = 'assets/Images/'

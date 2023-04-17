@@ -8,7 +8,7 @@ pygame.display.set_caption("Chees")
 clock = pygame.time.Clock()
 screen.fill(BACKGROUND)
 
-cheesboard = Cheesboard(screen)
+cheesboard = Cheesboard(screen, 4, 100)
 
 #Цикл обработки сбытий 
 running = True

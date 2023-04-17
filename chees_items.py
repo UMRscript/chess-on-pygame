@@ -1,5 +1,6 @@
-import pygame 
-from game_config import *
+from pieces import *
+import board_data
+
 pygame.init()
 
 fnt_num = pygame.font.Font(FNT_PATH, FNT_SIZE)
@@ -8,11 +9,15 @@ class Cheesboard:
     def __init__(self, parent_surface: pygame.Surface,
                  cell_qty: int=CELL_QTY, cell_size: int = CELL_SIZE):
         self.__screen = parent_surface
+        self.__table = board_data.board
         self.__qty = cell_qty
         self.__size = cell_size
+        self.__pieces_types = PIECES_TYPES
         self.__all_cells = pygame.sprite.Group()
+        self.__all_pieces = pygame.sprite.Group()
         self.__prepare_screen()
         self.__draw_playboard()
+        self.__draw_all_pieces()
         pygame.display.update()
     
     def __prepare_screen(self):
@@ -100,6 +105,32 @@ class Cheesboard:
             cell.rect.x += offset[0]
             cell.rect.y += offset[1]
         self.__all_cells.draw(self.__screen)
+
+    def __draw_all_pieces(self):
+        self.__setup_board()
+        self.__all_pieces.draw(self.__screen)
+
+    def __setup_board(self):
+        for j, row in enumerate(self.__table):
+            for i, field_value in enumerate(row):
+                if field_value != 0:
+                    piece = self.__create_piece(field_value, (j, i))
+                    self.__all_pieces.add(piece)
+        for piece in self.__all_pieces:
+            for cell in self.__all_cells:
+                if piece.field_name == cell.field_name:
+                    piece.rect = cell.rect
+
+    def __create_piece(self, piece_symbol: str, table_coord: tuple):
+        field_name = self.__to_field_name(table_coord)
+        piece_tuple = self.__pieces_types[piece_symbol]
+        classname = globals()[piece_tuple[0]]
+        return classname(self.__size, piece_tuple[1], field_name)
+    
+    def __to_field_name(self, table_coord: tuple):
+        return LTRS[table_coord[1]] + str(self.__qty - table_coord[0])
+
+
 
 class Cell(pygame.sprite.Sprite):
     def __init__(self, color_index: int, size: int, coords: tuple, name: str):

@@ -28,3 +28,16 @@ LTRS = 'abcdefghijlkmnopqrstuvwxyz'
 # задаем координаты начальной клетки
 x = 0
 y = 0
+
+PIECE_PATH = 'assets/pieces/'
+
+# Рсскодировка шахматных символов
+PIECES_TYPES = {
+    'k':('King', 'b'), 'K':('King', 'w'),
+    'q':('Queen', 'b'), 'Q':('Queen', 'w'),
+    'r':('Rook', 'b'), 'R':('Rook', 'w'),
+    'b':('Bishop', 'b'), 'B':('Bishop', 'w'),
+    'n':('Knight', 'b'), 'N':('Knight', 'w'),
+    'p':('Pawn', 'b'), 'P':('Pawn', 'w')
+}
+ 
